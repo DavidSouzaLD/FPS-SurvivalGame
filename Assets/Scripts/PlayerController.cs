@@ -53,6 +53,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // Camera rotation
         Vector2 mouseAxis = m_Input.MouseAxis();
 
         m_MouseLook.ChangeRotation(
@@ -144,8 +145,6 @@ public class PlayerController : MonoBehaviour
 
             cameraRot.x = Mathf.Clamp(cameraRot.x, -360f, 360f);
             cameraRot.y = Mathf.Clamp(cameraRot.y, -85f, 90f);
-
-            //Quaternion xQuaternion = Quaternion.AngleAxis(cameraRot.x, Vector3.up);
             Quaternion yQuaternion = Quaternion.AngleAxis(cameraRot.y, -Vector3.right);
 
             m_CameraTransform.localRotation = originalRotation * yQuaternion;

@@ -35,10 +35,10 @@ public class WeaponCrosshair : MonoBehaviour
             CustomizeCrosshair cc = m_CustomizeCrosshair;
 
             if (cc.color != crossData.color)
-                crossData.color = cc.color;
+                cc.color = crossData.color;
 
             if (cc.outlineColor != crossData.outlineColor)
-                crossData.outlineColor = cc.outlineColor;
+                cc.outlineColor = crossData.outlineColor;
 
             if (cc.useCross != crossData.useCross)
                 cc.useCross = crossData.useCross;

@@ -3494,15 +3494,8 @@ MonoBehaviour:
   crouchMoveSpeed: 7
   jumpForce: 4
   gravityMultiplier: 0.05
-  crouchSpeed: 4
-  crouchUpJumpForce: 5
-  crouchCrosshairSize: 90
-  crouchHeight: 0.5
-  normalHeight: 2
-  currentCheckHeight: 1
-  crouchCheckHeight: 0.5
-  normalCheckHeight: 1
   radiusCheck: 0.2
+  heightCheck: 1
   layersCheck:
     serializedVersion: 2
     m_Bits: 8

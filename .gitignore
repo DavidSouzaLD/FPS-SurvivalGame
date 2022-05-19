@@ -70,8 +70,7 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
-Assets/BoneTool/*
-Assets/BoneTool.meta/*
-Assets/Models/*
-Assets/Models.meta
-Assets/BoneTool.meta
+Assets/!Assets/*
+Assets/!Models/*
+Assets/\!assets.meta
+Assets/\!models.meta

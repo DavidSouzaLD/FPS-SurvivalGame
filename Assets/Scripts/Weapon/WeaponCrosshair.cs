@@ -150,6 +150,13 @@ public class WeaponCrosshair : MonoBehaviour
         timerForReset = timeToReset;
     }
 
+    public void SetSize(float size)
+    {
+        crosshairArea.sizeDelta = new Vector2(size, size);
+
+        timerForReset = timeToReset;
+    }
+
     public void ResetCrosshair()
     {
         if (timerForReset > 0)

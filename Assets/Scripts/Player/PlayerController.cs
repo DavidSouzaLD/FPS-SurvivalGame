@@ -8,11 +8,22 @@ public class PlayerController : MonoBehaviour
     [Header("Movement:")]
     [SerializeField] private float moveSpeed = 4;
     [SerializeField] private float runSpeed = 7;
+    [SerializeField] private float crouchMoveSpeed = 7;
     [SerializeField] private float jumpForce = 4;
     [SerializeField] private float gravityMultiplier = 0.05f;
 
+    [Header("Crouch:")]
+    [SerializeField] private float crouchSpeed = 7;
+    [SerializeField] private float crouchUpJumpForce = 5f;
+    [SerializeField] private float crouchCrosshairSize = 20;
+    [Space]
+    [SerializeField] private float crouchHeight = 0.5f;
+    [SerializeField] private float normalHeight = 2f;
+    [SerializeField] private float currentCheckHeight = 2f;
+    [SerializeField] private float crouchCheckHeight = 0.5f;
+    [SerializeField] private float normalCheckHeight = 2f;
+
     [Header("Ground Check:")]
-    [SerializeField] private float heightCheck = -1f;
     [SerializeField] private float radiusCheck = 0.2f;
     [SerializeField] private LayerMask layersCheck;
 
@@ -23,14 +34,12 @@ public class PlayerController : MonoBehaviour
     [Space]
     [SerializeField] private MouseLook m_MouseLook;
 
-    // Components
+    private WeaponCrosshair m_Crosshair;
     private CharacterController m_CharacterController;
     private Rigidbody m_Rigidbody;
-    private WeaponCrosshair m_Crosshair;
-
-    // Hidden
     private Camera m_Camera;
     private Input m_Input;
+    private bool cancelCrouch;
 
     private void Start()
     {
@@ -75,8 +84,10 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         // Movement
+        bool keyCrouch = m_Input.KeyCrouch();
+        bool keyRun = m_Input.KeyRun();
         Vector2 keyAxis = m_Input.KeyAxis();
-        float currentSpeed = m_Input.KeyRun() ? runSpeed : moveSpeed;
+        float currentSpeed = keyCrouch ? crouchMoveSpeed : (keyRun ? runSpeed : moveSpeed);
 
         Vector3 direction = transform.right * keyAxis.x + transform.forward * keyAxis.y;
         Vector3 move = direction * currentSpeed;
@@ -94,8 +105,29 @@ public class PlayerController : MonoBehaviour
                 move.y += (jumpForce * 100f) * Time.fixedDeltaTime;
                 m_Crosshair.AddForce(crosshairForceInJump);
             }
+
+            //Crouch
+            if (keyCrouch)
+            {
+                m_CharacterController.height = Mathf.Lerp(m_CharacterController.height, crouchHeight, crouchSpeed * Time.deltaTime);
+                currentCheckHeight = Mathf.Lerp(currentCheckHeight, crouchCheckHeight, crouchSpeed * Time.deltaTime);
+
+                cancelCrouch = false;
+            }
+            else
+            {
+                if (!cancelCrouch)
+                {
+                    move.y += crouchUpJumpForce;
+                    cancelCrouch = true;
+                }
+
+                m_CharacterController.height = Mathf.Lerp(m_CharacterController.height, normalHeight, crouchSpeed * Time.deltaTime);
+                currentCheckHeight = Mathf.Lerp(currentCheckHeight, normalCheckHeight, crouchSpeed * Time.deltaTime);
+            }
         }
-        else
+
+        if (!m_CharacterController.isGrounded)
         {
             // Gravity
             move.y += m_CharacterController.velocity.y + (Physics.gravity.y * gravityMultiplier);
@@ -106,15 +138,20 @@ public class PlayerController : MonoBehaviour
 
     private bool IsGrounded()
     {
-        Collider[] colliders = Physics.OverlapSphere(new Vector3(
-             transform.position.x,
-             transform.position.y + heightCheck,
-             transform.position.z
-         ), radiusCheck, layersCheck);
-
-        if (colliders.Length > 0)
+        if (m_Input != null)
         {
-            return true;
+            bool keyCrouch = m_Input.KeyCrouch();
+
+            Collider[] colliders = Physics.OverlapSphere(new Vector3(
+                 transform.position.x,
+                 transform.position.y - currentCheckHeight,
+                 transform.position.z
+             ), radiusCheck, layersCheck);
+
+            if (colliders.Length > 0)
+            {
+                return true;
+            }
         }
 
         return false;
@@ -125,7 +162,7 @@ public class PlayerController : MonoBehaviour
         Gizmos.color = IsGrounded() ? Color.green : Color.red;
         Gizmos.DrawWireSphere(new Vector3(
             transform.position.x,
-            transform.position.y + heightCheck,
+            transform.position.y - currentCheckHeight,
             transform.position.z
         ), radiusCheck);
     }

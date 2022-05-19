@@ -21,7 +21,7 @@ public class PlayerSway : MonoBehaviour
 
         if (mouseAxis != Vector2.zero)
         {
-            Quaternion quat = Quaternion.Euler(mouseAxis.y * moveAmount, -mouseAxis.x * moveAmount, transform.localRotation.z);
+            Quaternion quat = Quaternion.Euler(mouseAxis.y * moveAmount * 2, -mouseAxis.x * moveAmount, transform.localRotation.z);
             transform.localRotation = Quaternion.Lerp(transform.localRotation,
             transform.localRotation * quat, Time.deltaTime * smoothSpeed);
         }

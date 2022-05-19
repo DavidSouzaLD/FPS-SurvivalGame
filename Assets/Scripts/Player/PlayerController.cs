@@ -6,14 +6,14 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement:")]
-    [SerializeField] private float moveSpeed;
-    [SerializeField] private float runSpeed;
-    [SerializeField] private float jumpForce;
-    [SerializeField] private float gravityMultiplier;
+    [SerializeField] private float moveSpeed = 4;
+    [SerializeField] private float runSpeed = 7;
+    [SerializeField] private float jumpForce = 4;
+    [SerializeField] private float gravityMultiplier = 0.05f;
 
     [Header("Ground Check:")]
-    [SerializeField] private float heightCheck;
-    [SerializeField] private float radiusCheck;
+    [SerializeField] private float heightCheck = -1f;
+    [SerializeField] private float radiusCheck = 0.2f;
     [SerializeField] private LayerMask layersCheck;
     [Space]
     [SerializeField] private MouseLook m_MouseLook;

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b8d65d76be5ae942b0b5a501710eab0, type: 3}
-  m_Name: Crosshair [Base]
+  m_Name: Base [CrossData]
   m_EditorClassIdentifier: 
   color: {r: 1, g: 1, b: 1, a: 1}
   outlineColor: {r: 0, g: 0, b: 0, a: 0.39215687}
   useCross: 1
   startSize: 95
-  maxSize: 300
+  maxSize: 150
   height: 1.8
   width: 4
   usePoint: 0

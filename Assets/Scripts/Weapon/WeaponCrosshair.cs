@@ -9,13 +9,16 @@ public class WeaponCrosshair : MonoBehaviour
     [Header("Crosshair Settings:")]
     public bool enable;
     [SerializeField] private WeaponCrosshair_SO crossData;
-    public float startSize = 80;
-    public float maxSize = 200;
+    [SerializeField] public float startSize = 80;
+    [SerializeField] public float maxSize = 200;
+    [SerializeField] private float timeToReset = 0.2f;
     [SerializeField] private float resetSpeed = 2;
     [Space]
     [SerializeField] private CustomizeCrosshair m_CustomizeCrosshair;
     [SerializeField] private Crosshair m_Crosshair;
     [HideInInspector] public RectTransform crosshairArea;
+
+    private float timerForReset;
 
     private void Start()
     {
@@ -143,11 +146,18 @@ public class WeaponCrosshair : MonoBehaviour
             Mathf.Clamp(crosshairArea.sizeDelta.x, 0, maxSize),
             Mathf.Clamp(crosshairArea.sizeDelta.y, 0, maxSize)
         );
+
+        timerForReset = timeToReset;
     }
 
     public void ResetCrosshair()
     {
-        if (Application.IsPlaying(this))
+        if (timerForReset > 0)
+        {
+            timerForReset -= Time.deltaTime;
+        }
+
+        if (Application.IsPlaying(this) && timerForReset <= 0)
         {
             Vector2 _startSize = new Vector2(startSize, startSize);
 

@@ -15,12 +15,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float heightCheck = -1f;
     [SerializeField] private float radiusCheck = 0.2f;
     [SerializeField] private LayerMask layersCheck;
+
+    [Header("Affect Weapon:")]
+    [SerializeField] private float crosshairForceInWalk = 35f;
+    [SerializeField] private float crosshairForceInJump = 200f;
+
     [Space]
     [SerializeField] private MouseLook m_MouseLook;
 
     // Components
     private CharacterController m_CharacterController;
     private Rigidbody m_Rigidbody;
+    private WeaponCrosshair m_Crosshair;
 
     // Hidden
     private Camera m_Camera;
@@ -49,6 +55,7 @@ public class PlayerController : MonoBehaviour
         // Get components
         m_CharacterController = GetComponent<CharacterController>();
         m_Rigidbody = GetComponent<Rigidbody>();
+        m_Crosshair = GameObject.FindObjectOfType<WeaponCrosshair>();
     }
 
     private void Update()
@@ -74,12 +81,18 @@ public class PlayerController : MonoBehaviour
         Vector3 direction = transform.right * keyAxis.x + transform.forward * keyAxis.y;
         Vector3 move = direction * currentSpeed;
 
+        if (keyAxis != Vector2.zero)
+        {
+            m_Crosshair.AddForce(m_Input.KeyRun() ? crosshairForceInWalk * 2 * Time.deltaTime : crosshairForceInWalk * Time.deltaTime);
+        }
+
         if (IsGrounded())
         {
             // Jump
             if (m_Input.KeyJump())
             {
                 move.y += (jumpForce * 100f) * Time.fixedDeltaTime;
+                m_Crosshair.AddForce(crosshairForceInJump);
             }
         }
         else

@@ -2,39 +2,14 @@ using UnityEngine;
 
 public class WeaponSystem : MonoBehaviour
 {
-    public enum FireType { Semi, Automatic }
-
-    [Header("Fire:")]
-    [SerializeField] private FireType fireType;
-    [SerializeField] private LayerMask layerTarget;
-    [SerializeField] private float firerate = 0.1f;
-    [SerializeField] private float crosshairForce = 30f;
-    [SerializeField] private float maxRange = 500f;
-    [SerializeField] private int maxPenetration = 1;
-
-    [Header("Recoil:")]
-    [SerializeField] private float recoilSpread = 5f;
+    [SerializeField] private WeaponSystem_SO WeaponSO;
 
     [Header("Bullet:")]
     [SerializeField] private int bulletsInMag = 30;
     [SerializeField] private int bulletsInBag = 30;
     [SerializeField] private int maxBulletsPerMag = 30;
 
-    [Header("Aim:")]
-    [SerializeField] private float aimSpeed = 5f;
-    [SerializeField] private Vector3 aimPosition;
-
-    [Header("Damage/Force:")]
-    [SerializeField] private float minDamage = 15f;
-    [SerializeField] private float maxDamage = 30f;
-    [Space]
-    [SerializeField] private float minForce = 10f;
-    [SerializeField] private float maxForce = 30f;
-
-
-
     private float firerateTimer = 0;
-    private float recoilSpreadTimer = 0;
     private Vector3 startPosition;
 
     private bool isReloading;
@@ -43,6 +18,7 @@ public class WeaponSystem : MonoBehaviour
     private Input m_Input;
     private WeaponCrosshair m_Crosshair;
     private WeaponSway m_Sway;
+    private WeaponRecoil m_Recoil;
     private Camera m_Camera;
 
     private void Start()
@@ -50,6 +26,7 @@ public class WeaponSystem : MonoBehaviour
         m_Input = GameObject.FindObjectOfType<Input>();
         m_Crosshair = GameObject.FindObjectOfType<WeaponCrosshair>();
         m_Sway = GameObject.FindObjectOfType<WeaponSway>();
+        m_Recoil = GameObject.FindObjectOfType<WeaponRecoil>();
         m_Camera = Camera.main;
 
         startPosition = transform.localPosition;
@@ -71,16 +48,16 @@ public class WeaponSystem : MonoBehaviour
 
         if (canFire)
         {
-            switch (fireType)
+            switch (WeaponSO.fireType)
             {
-                case FireType.Semi:
+                case WeaponSystem_SO.FireType.Semi:
                     if (semiFire)
                     {
                         Fire();
                     }
                     break;
 
-                case FireType.Automatic:
+                case WeaponSystem_SO.FireType.Automatic:
                     if (autoFire)
                     {
                         Fire();
@@ -93,12 +70,6 @@ public class WeaponSystem : MonoBehaviour
         if (firerateTimer > 0)
         {
             firerateTimer -= Time.deltaTime;
-        }
-
-        // Recoil
-        if (recoilSpreadTimer > 0)
-        {
-            recoilSpreadTimer -= Time.deltaTime;
         }
     }
 
@@ -130,14 +101,14 @@ public class WeaponSystem : MonoBehaviour
 
         if (aimKey)
         {
-            transform.localPosition = Vector3.Lerp(transform.localPosition, aimPosition, aimSpeed * Time.deltaTime);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, WeaponSO.aimPosition, WeaponSO.aimSpeed * Time.deltaTime);
             m_Sway.accuracy = 0.1f;
             m_Crosshair.crosshairArea.sizeDelta = Vector2.zero;
             m_Crosshair.enable = false;
         }
         else
         {
-            transform.localPosition = Vector3.Lerp(transform.localPosition, startPosition, aimSpeed * Time.deltaTime);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, startPosition, WeaponSO.aimSpeed * Time.deltaTime);
             m_Sway.accuracy = 1f;
             m_Crosshair.enable = true;
         }
@@ -148,17 +119,17 @@ public class WeaponSystem : MonoBehaviour
         float crosshairNormalized = Mathf.InverseLerp(m_Crosshair.startSize, m_Crosshair.maxSize, m_Crosshair.crosshairArea.sizeDelta.x);
 
         Vector3 forward = new Vector3(
-          m_Camera.transform.forward.x + Random.Range(-recoilSpread * crosshairNormalized, recoilSpread * crosshairNormalized),
-          m_Camera.transform.forward.y + Random.Range(-recoilSpread * crosshairNormalized, recoilSpread * crosshairNormalized),
+          m_Camera.transform.forward.x + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
+          m_Camera.transform.forward.y + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
           m_Camera.transform.forward.z
         );
 
-        RaycastHit[] hits = Physics.RaycastAll(m_Camera.transform.position, forward, maxRange, layerTarget);
+        RaycastHit[] hits = Physics.RaycastAll(m_Camera.transform.position, forward, WeaponSO.maxRange, WeaponSO.layerTarget);
         int maxTargets = hits.Length;
 
-        if (maxTargets > maxPenetration)
+        if (maxTargets > WeaponSO.maxPenetration)
         {
-            maxTargets = maxPenetration;
+            maxTargets = WeaponSO.maxPenetration;
         }
 
         for (int i = 0; i < maxTargets; i++)
@@ -177,7 +148,7 @@ public class WeaponSystem : MonoBehaviour
                 // Add force
                 if (target.rigidbody != null)
                 {
-                    target.rigidbody.AddForceAtPosition(m_Camera.transform.forward * Random.Range(minForce, maxForce) * Time.deltaTime, hits[i].point, ForceMode.Impulse);
+                    target.rigidbody.AddForceAtPosition(m_Camera.transform.forward * Random.Range(WeaponSO.minForce, WeaponSO.maxForce) * Time.deltaTime, hits[i].point, ForceMode.Impulse);
                 }
 
                 // Damage
@@ -185,7 +156,7 @@ public class WeaponSystem : MonoBehaviour
 
                 if (damageable != null)
                 {
-                    damageable.TakeDamage(Random.Range(minDamage, maxDamage));
+                    damageable.TakeDamage(Random.Range(WeaponSO.minDamage, WeaponSO.maxDamage));
                 }
             }
             else
@@ -194,10 +165,11 @@ public class WeaponSystem : MonoBehaviour
             }
         }
 
-        m_Crosshair.AddForce(crosshairForce);
+        m_Crosshair.AddForce(WeaponSO.crosshairForce);
+        m_Recoil.AddForce();
 
         bulletsInMag--;
-        firerateTimer = firerate;
+        firerateTimer = WeaponSO.firerate;
     }
 
     private void OnDrawGizmos()
@@ -206,8 +178,10 @@ public class WeaponSystem : MonoBehaviour
         {
             m_Camera = Camera.main;
         }
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawRay(m_Camera.transform.position, m_Camera.transform.forward * maxRange);
+        else if (WeaponSO != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawRay(m_Camera.transform.position, m_Camera.transform.forward * WeaponSO.maxRange);
+        }
     }
 }

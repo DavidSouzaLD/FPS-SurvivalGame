@@ -6,11 +6,23 @@ public class WeaponSystem : MonoBehaviour
 
     [Header("Fire:")]
     [SerializeField] private FireType fireType;
+    [SerializeField] private LayerMask layerTarget;
     [SerializeField] private float firerate = 0.1f;
+    [SerializeField] private float crosshairForce = 30f;
     [SerializeField] private float maxRange = 500f;
     [SerializeField] private int maxPenetration = 1;
-    [SerializeField] private float crosshairForce = 30f;
-    [SerializeField] private LayerMask layerTarget;
+
+    [Header("Recoil:")]
+    [SerializeField] private float recoilSpread = 5f;
+
+    [Header("Bullet:")]
+    [SerializeField] private int bulletsInMag = 30;
+    [SerializeField] private int bulletsInBag = 30;
+    [SerializeField] private int maxBulletsPerMag = 30;
+
+    [Header("Aim:")]
+    [SerializeField] private float aimSpeed = 5f;
+    [SerializeField] private Vector3 aimPosition;
 
     [Header("Damage/Force:")]
     [SerializeField] private float minDamage = 15f;
@@ -19,16 +31,10 @@ public class WeaponSystem : MonoBehaviour
     [SerializeField] private float minForce = 10f;
     [SerializeField] private float maxForce = 30f;
 
-    [Header("Aim:")]
-    [SerializeField] private float aimSpeed = 5f;
-    [SerializeField] private Vector3 aimPosition;
 
-    [Header("Bullet:")]
-    [SerializeField] private int bulletsInMag = 30;
-    [SerializeField] private int bulletsInBag = 30;
-    [SerializeField] private int maxBulletsPerMag = 30;
 
     private float firerateTimer = 0;
+    private float recoilSpreadTimer = 0;
     private Vector3 startPosition;
 
     private bool isReloading;
@@ -88,13 +94,18 @@ public class WeaponSystem : MonoBehaviour
         {
             firerateTimer -= Time.deltaTime;
         }
+
+        // Recoil
+        if (recoilSpreadTimer > 0)
+        {
+            recoilSpreadTimer -= Time.deltaTime;
+        }
     }
 
     private void ReloadUpdate()
     {
         bool canReload = !isReloading && bulletsInMag < maxBulletsPerMag && bulletsInBag > 0;
         bool reloadKey = m_Input.KeyReload();
-
 
         if (canReload && reloadKey)
         {
@@ -121,6 +132,7 @@ public class WeaponSystem : MonoBehaviour
         {
             transform.localPosition = Vector3.Lerp(transform.localPosition, aimPosition, aimSpeed * Time.deltaTime);
             m_Sway.accuracy = 0.1f;
+            m_Crosshair.crosshairArea.sizeDelta = Vector2.zero;
             m_Crosshair.enable = false;
         }
         else
@@ -133,7 +145,15 @@ public class WeaponSystem : MonoBehaviour
 
     private void Fire()
     {
-        RaycastHit[] hits = Physics.RaycastAll(m_Camera.transform.position, m_Camera.transform.forward, maxRange, layerTarget);
+        float crosshairNormalized = Mathf.InverseLerp(m_Crosshair.startSize, m_Crosshair.maxSize, m_Crosshair.crosshairArea.sizeDelta.x);
+
+        Vector3 forward = new Vector3(
+          m_Camera.transform.forward.x + Random.Range(-recoilSpread * crosshairNormalized, recoilSpread * crosshairNormalized),
+          m_Camera.transform.forward.y + Random.Range(-recoilSpread * crosshairNormalized, recoilSpread * crosshairNormalized),
+          m_Camera.transform.forward.z
+        );
+
+        RaycastHit[] hits = Physics.RaycastAll(m_Camera.transform.position, forward, maxRange, layerTarget);
         int maxTargets = hits.Length;
 
         if (maxTargets > maxPenetration)
@@ -143,18 +163,29 @@ public class WeaponSystem : MonoBehaviour
 
         for (int i = 0; i < maxTargets; i++)
         {
-            if (hits[i].collider != null)
+            RaycastHit target = hits[i];
+
+            if (target.collider != null)
             {
                 // Hit mark
                 GameObject hitMark = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 hitMark.transform.position = hits[i].point;
                 hitMark.transform.localScale = Vector3.one * 0.1f;
                 Destroy(hitMark.GetComponent<Collider>());
+                Destroy(hitMark, 2f);
 
                 // Add force
-                if (hits[i].rigidbody != null)
+                if (target.rigidbody != null)
                 {
-                    hits[i].rigidbody.AddForceAtPosition(m_Camera.transform.forward * Random.Range(minForce, maxForce) * Time.deltaTime, hits[i].point, ForceMode.Impulse);
+                    target.rigidbody.AddForceAtPosition(m_Camera.transform.forward * Random.Range(minForce, maxForce) * Time.deltaTime, hits[i].point, ForceMode.Impulse);
+                }
+
+                // Damage
+                IDamageable<float> damageable = target.collider.GetComponent<IDamageable<float>>();
+
+                if (damageable != null)
+                {
+                    damageable.TakeDamage(Random.Range(minDamage, maxDamage));
                 }
             }
             else

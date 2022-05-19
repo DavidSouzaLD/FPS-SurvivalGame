@@ -9,8 +9,8 @@ public class WeaponCrosshair : MonoBehaviour
     [Header("Crosshair Settings:")]
     public bool enable;
     [SerializeField] private WeaponCrosshair_SO crossData;
-    [SerializeField] private float startSize = 80;
-    [SerializeField] private float maxSize = 200;
+    public float startSize = 80;
+    public float maxSize = 200;
     [SerializeField] private float resetSpeed = 2;
     [Space]
     [SerializeField] private CustomizeCrosshair m_CustomizeCrosshair;

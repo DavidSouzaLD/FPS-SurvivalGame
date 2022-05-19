@@ -105,12 +105,16 @@ public class WeaponSystem : MonoBehaviour
             m_Sway.accuracy = 0.1f;
             m_Crosshair.crosshairArea.sizeDelta = Vector2.zero;
             m_Crosshair.enable = false;
+
+            isAiming = true;
         }
         else
         {
             transform.localPosition = Vector3.Lerp(transform.localPosition, startPosition, WeaponSO.aimSpeed * Time.deltaTime);
             m_Sway.accuracy = 1f;
             m_Crosshair.enable = true;
+
+            isAiming = false;
         }
     }
 
@@ -169,7 +173,7 @@ public class WeaponSystem : MonoBehaviour
         m_Recoil.AddForce();
 
         bulletsInMag--;
-        firerateTimer = WeaponSO.firerate;
+        firerateTimer = !isAiming ? WeaponSO.firerate : WeaponSO.firerate * WeaponSO.aimFirerateMultiplier;
     }
 
     private void OnDrawGizmos()

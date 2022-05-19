@@ -25,5 +25,5 @@ MonoBehaviour:
   aimPosition: {x: -0.073, y: 0.0315, z: -0.05}
   minDamage: 15
   maxDamage: 30
-  minForce: 10
-  maxForce: 30
+  minForce: 30
+  maxForce: 60

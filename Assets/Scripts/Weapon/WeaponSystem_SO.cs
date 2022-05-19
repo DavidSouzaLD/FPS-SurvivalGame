@@ -9,6 +9,7 @@ public class WeaponSystem_SO : ScriptableObject
     public FireType fireType;
     public LayerMask layerTarget;
     public float firerate = 0.1f;
+    public float aimFirerateMultiplier = 2f;
     public float crosshairForce = 30f;
     public float maxRange = 500f;
     public int maxPenetration = 1;

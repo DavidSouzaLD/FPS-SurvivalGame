@@ -4,10 +4,11 @@ using UnityEngine.UI;
 
 [RequireComponent(typeof(RectTransform))]
 [ExecuteInEditMode]
-public class DynamicCrosshair : MonoBehaviour
+public class WeaponCrosshair : MonoBehaviour
 {
     [Header("Crosshair Settings:")]
-    [SerializeField] private DynamicCross_SO crossData;
+    public bool enable;
+    [SerializeField] private WeaponCrosshair_SO crossData;
     [SerializeField] private float startSize = 80;
     [SerializeField] private float maxSize = 200;
     [SerializeField] private float resetSpeed = 2;
@@ -103,7 +104,10 @@ public class DynamicCrosshair : MonoBehaviour
         // 0 Top / 1 Down / 2 left / 3 Right
         for (int i = 0; i < m_Crosshair.GetList().Length; i++)
         {
-            m_Crosshair.GetList()[i].enabled = m_CustomizeCrosshair.useCross;
+            m_Crosshair.GetList()[i].enabled = enable;
+            m_Crosshair.center.enabled = enable;
+
+            m_Crosshair.GetList()[i].enabled = enable && m_CustomizeCrosshair.useCross;
             m_Crosshair.GetList()[i].color = m_CustomizeCrosshair.color;
             m_Crosshair.GetList()[i].GetComponent<Outline>().effectColor = m_CustomizeCrosshair.outlineColor;
             m_Crosshair.center.GetComponent<Outline>().effectColor = m_CustomizeCrosshair.outlineColor;

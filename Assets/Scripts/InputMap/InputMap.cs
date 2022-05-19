@@ -37,12 +37,30 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""FireTap1"",
+                    ""type"": ""Button"",
+                    ""id"": ""e24c99e5-b56e-4ce7-8a02-89c101dd3dad"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Tap"",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Fire2"",
+                    ""type"": ""Button"",
+                    ""id"": ""b572137f-5aea-4ffb-8b96-d0b1e97821ae"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FireTap2"",
                     ""type"": ""Button"",
                     ""id"": ""84e7c2bd-9f5b-4f74-9957-7a754f0d03f6"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": """",
+                    ""interactions"": ""Tap"",
                     ""initialStateCheck"": false
                 },
                 {
@@ -79,6 +97,15 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": ""Tap"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Reload"",
+                    ""type"": ""Button"",
+                    ""id"": ""74f1592b-9fa6-41a1-b84c-a7af56a128fa"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
@@ -204,12 +231,45 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""c9011b80-5a10-4246-9965-8e5b554729f8"",
+                    ""id"": ""d08df224-e13d-4f1c-9e5a-e6298f1896ad"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FireTap1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f69e4c3c-53e4-4eab-87d7-69f5949ff5bb"",
                     ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Fire2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c9011b80-5a10-4246-9965-8e5b554729f8"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FireTap2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""765ff4f0-f9f0-43ba-86fc-f6d73ecb067d"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Reload"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -221,11 +281,14 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Fire1 = m_Player.FindAction("Fire1", throwIfNotFound: true);
+        m_Player_FireTap1 = m_Player.FindAction("FireTap1", throwIfNotFound: true);
         m_Player_Fire2 = m_Player.FindAction("Fire2", throwIfNotFound: true);
+        m_Player_FireTap2 = m_Player.FindAction("FireTap2", throwIfNotFound: true);
         m_Player_KeyAxis = m_Player.FindAction("KeyAxis", throwIfNotFound: true);
         m_Player_MouseAxis = m_Player.FindAction("MouseAxis", throwIfNotFound: true);
         m_Player_Run = m_Player.FindAction("Run", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
+        m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
         m_Player_ESC = m_Player.FindAction("ESC", throwIfNotFound: true);
     }
 
@@ -287,22 +350,28 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private IPlayerActions m_PlayerActionsCallbackInterface;
     private readonly InputAction m_Player_Fire1;
+    private readonly InputAction m_Player_FireTap1;
     private readonly InputAction m_Player_Fire2;
+    private readonly InputAction m_Player_FireTap2;
     private readonly InputAction m_Player_KeyAxis;
     private readonly InputAction m_Player_MouseAxis;
     private readonly InputAction m_Player_Run;
     private readonly InputAction m_Player_Jump;
+    private readonly InputAction m_Player_Reload;
     private readonly InputAction m_Player_ESC;
     public struct PlayerActions
     {
         private @InputMap m_Wrapper;
         public PlayerActions(@InputMap wrapper) { m_Wrapper = wrapper; }
         public InputAction @Fire1 => m_Wrapper.m_Player_Fire1;
+        public InputAction @FireTap1 => m_Wrapper.m_Player_FireTap1;
         public InputAction @Fire2 => m_Wrapper.m_Player_Fire2;
+        public InputAction @FireTap2 => m_Wrapper.m_Player_FireTap2;
         public InputAction @KeyAxis => m_Wrapper.m_Player_KeyAxis;
         public InputAction @MouseAxis => m_Wrapper.m_Player_MouseAxis;
         public InputAction @Run => m_Wrapper.m_Player_Run;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
+        public InputAction @Reload => m_Wrapper.m_Player_Reload;
         public InputAction @ESC => m_Wrapper.m_Player_ESC;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
@@ -316,9 +385,15 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
                 @Fire1.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire1;
                 @Fire1.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire1;
                 @Fire1.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire1;
+                @FireTap1.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFireTap1;
+                @FireTap1.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFireTap1;
+                @FireTap1.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFireTap1;
                 @Fire2.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire2;
                 @Fire2.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire2;
                 @Fire2.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire2;
+                @FireTap2.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFireTap2;
+                @FireTap2.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFireTap2;
+                @FireTap2.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFireTap2;
                 @KeyAxis.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnKeyAxis;
                 @KeyAxis.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnKeyAxis;
                 @KeyAxis.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnKeyAxis;
@@ -331,6 +406,9 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
                 @Jump.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
+                @Reload.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnReload;
+                @Reload.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnReload;
+                @Reload.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnReload;
                 @ESC.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnESC;
                 @ESC.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnESC;
                 @ESC.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnESC;
@@ -341,9 +419,15 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
                 @Fire1.started += instance.OnFire1;
                 @Fire1.performed += instance.OnFire1;
                 @Fire1.canceled += instance.OnFire1;
+                @FireTap1.started += instance.OnFireTap1;
+                @FireTap1.performed += instance.OnFireTap1;
+                @FireTap1.canceled += instance.OnFireTap1;
                 @Fire2.started += instance.OnFire2;
                 @Fire2.performed += instance.OnFire2;
                 @Fire2.canceled += instance.OnFire2;
+                @FireTap2.started += instance.OnFireTap2;
+                @FireTap2.performed += instance.OnFireTap2;
+                @FireTap2.canceled += instance.OnFireTap2;
                 @KeyAxis.started += instance.OnKeyAxis;
                 @KeyAxis.performed += instance.OnKeyAxis;
                 @KeyAxis.canceled += instance.OnKeyAxis;
@@ -356,6 +440,9 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
+                @Reload.started += instance.OnReload;
+                @Reload.performed += instance.OnReload;
+                @Reload.canceled += instance.OnReload;
                 @ESC.started += instance.OnESC;
                 @ESC.performed += instance.OnESC;
                 @ESC.canceled += instance.OnESC;
@@ -366,11 +453,14 @@ public partial class @InputMap : IInputActionCollection2, IDisposable
     public interface IPlayerActions
     {
         void OnFire1(InputAction.CallbackContext context);
+        void OnFireTap1(InputAction.CallbackContext context);
         void OnFire2(InputAction.CallbackContext context);
+        void OnFireTap2(InputAction.CallbackContext context);
         void OnKeyAxis(InputAction.CallbackContext context);
         void OnMouseAxis(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnReload(InputAction.CallbackContext context);
         void OnESC(InputAction.CallbackContext context);
     }
 }

@@ -12,7 +12,10 @@ public class Input : MonoBehaviour
     public Vector2 MouseAxis() => m_InputMap.Player.MouseAxis.ReadValue<Vector2>();
     public bool KeyFire1() => m_InputMap.Player.Fire1.ReadValue<float>() != 0;
     public bool KeyFire2() => m_InputMap.Player.Fire2.ReadValue<float>() != 0;
+    public bool KeyFireTap1() => m_InputMap.Player.FireTap1.ReadValue<float>() != 0;
+    public bool KeyFireTap2() => m_InputMap.Player.FireTap2.ReadValue<float>() != 0;
     public bool KeyRun() => m_InputMap.Player.Run.ReadValue<float>() != 0;
     public bool KeyJump() => m_InputMap.Player.Jump.ReadValue<float>() != 0;
+    public bool KeyReload() => m_InputMap.Player.Reload.ReadValue<float>() != 0;
     public bool KeyESC() => m_InputMap.Player.ESC.ReadValue<float>() != 0;
 }

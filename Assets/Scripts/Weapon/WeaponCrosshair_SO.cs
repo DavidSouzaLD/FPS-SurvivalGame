@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenuAttribute(fileName = "CrossData", menuName = "ProjectSouza/CrossData")]
-public class DynamicCross_SO : ScriptableObject
+public class WeaponCrosshair_SO : ScriptableObject
 {
     public Color color = Color.red, outlineColor = Color.red;
     public bool useCross;

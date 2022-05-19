@@ -1,7 +1,9 @@
 using UnityEngine;
 
-public class PlayerSway : MonoBehaviour
+public class WeaponSway : MonoBehaviour
 {
+    [Range(0, 1)] public float accuracy = 1;
+    [Space]
     [SerializeField] private float smoothSpeed = 2;
     [SerializeField] private float resetSpeed = 5;
     [SerializeField] private float moveAmount = 1;
@@ -21,7 +23,7 @@ public class PlayerSway : MonoBehaviour
 
         if (mouseAxis != Vector2.zero)
         {
-            Quaternion quat = Quaternion.Euler(mouseAxis.y * moveAmount * 2, -mouseAxis.x * moveAmount, transform.localRotation.z);
+            Quaternion quat = Quaternion.Euler((mouseAxis.y * moveAmount * 2) * accuracy, (-mouseAxis.x * moveAmount) * accuracy, transform.localRotation.z);
             transform.localRotation = Quaternion.Lerp(transform.localRotation,
             transform.localRotation * quat, Time.deltaTime * smoothSpeed);
         }

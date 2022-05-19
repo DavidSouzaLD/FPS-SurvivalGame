@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class WeaponSystem : MonoBehaviour
 {
-    [SerializeField] private WeaponSystem_SO WeaponSO;
+    [SerializeField] public WeaponSystem_SO WeaponSO;
 
     [Header("Bullet:")]
     [SerializeField] private int bulletsInMag = 30;
@@ -19,16 +19,20 @@ public class WeaponSystem : MonoBehaviour
     private Input m_Input;
     private Camera m_Camera;
     private AudioSource m_AudioSource;
+    private Animator m_Animator;
 
     private WeaponCrosshair m_Crosshair;
     private WeaponSway m_Sway;
     private WeaponRecoil m_Recoil;
+
+    public void PlaySound(AudioClip clip) => m_AudioSource.PlayOneShot(clip);
 
     private void Start()
     {
         m_Input = GameObject.FindObjectOfType<Input>();
         m_Camera = Camera.main;
         m_AudioSource = GetComponent<AudioSource>();
+        m_Animator = GetComponentInChildren<Animator>();
 
         m_Crosshair = GameObject.FindObjectOfType<WeaponCrosshair>();
         m_Sway = GameObject.FindObjectOfType<WeaponSway>();
@@ -47,7 +51,7 @@ public class WeaponSystem : MonoBehaviour
     private void FireUpdate()
     {
         // Fire
-        bool canFire = firerateTimer <= 0;
+        bool canFire = firerateTimer <= 0 && !isReloading;
         bool autoFire = m_Input.KeyFire1();
         bool semiFire = m_Input.KeyFireTap1();
 
@@ -85,19 +89,28 @@ public class WeaponSystem : MonoBehaviour
 
         if (canReload && reloadKey)
         {
-            isReloading = true;
-
-            for (int i = 0; i < maxBulletsPerMag; i++)
-            {
-                if (bulletsInBag > 0 && bulletsInMag < maxBulletsPerMag)
-                {
-                    bulletsInMag++;
-                    bulletsInBag--;
-                }
-            }
-
-            isReloading = false;
+            ReloadInit();
         }
+    }
+
+    public void ReloadInit()
+    {
+        isReloading = true;
+        m_Animator.Play("Reload", 0);
+    }
+
+    public void ReloadComplete()
+    {
+        for (int i = 0; i < maxBulletsPerMag; i++)
+        {
+            if (bulletsInBag > 0 && bulletsInMag < maxBulletsPerMag)
+            {
+                bulletsInMag++;
+                bulletsInBag--;
+            }
+        }
+
+        isReloading = false;
     }
 
     private void AimUpdate()
@@ -187,7 +200,10 @@ public class WeaponSystem : MonoBehaviour
 
             // Sounds
             int randomShoot = Random.Range(0, WeaponSO.fireSounds.Length);
-            m_AudioSource.PlayOneShot(WeaponSO.fireSounds[randomShoot]);
+            PlaySound(WeaponSO.fireSounds[randomShoot]);
+
+            // Animator
+            m_Animator.Play("Fire", 0);
 
             // Shoot reset
             bulletsInMag--;

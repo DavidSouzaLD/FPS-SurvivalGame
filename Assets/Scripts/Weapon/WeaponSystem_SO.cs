@@ -31,4 +31,8 @@ public class WeaponSystem_SO : ScriptableObject
     [Header("Sound:")]
     public AudioClip[] fireSounds;
     public AudioClip emptySound;
+    [Space]
+    public AudioClip reloadPickMagazine;
+    public AudioClip reloadPutMagazine;
+    public AudioClip reloadCocking;
 }

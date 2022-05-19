@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class WeaponSystem : MonoBehaviour
 {
     [SerializeField] private WeaponSystem_SO WeaponSO;
@@ -16,18 +17,22 @@ public class WeaponSystem : MonoBehaviour
     private bool isAiming;
 
     private Input m_Input;
+    private Camera m_Camera;
+    private AudioSource m_AudioSource;
+
     private WeaponCrosshair m_Crosshair;
     private WeaponSway m_Sway;
     private WeaponRecoil m_Recoil;
-    private Camera m_Camera;
 
     private void Start()
     {
         m_Input = GameObject.FindObjectOfType<Input>();
+        m_Camera = Camera.main;
+        m_AudioSource = GetComponent<AudioSource>();
+
         m_Crosshair = GameObject.FindObjectOfType<WeaponCrosshair>();
         m_Sway = GameObject.FindObjectOfType<WeaponSway>();
         m_Recoil = GameObject.FindObjectOfType<WeaponRecoil>();
-        m_Camera = Camera.main;
 
         startPosition = transform.localPosition;
     }
@@ -42,7 +47,7 @@ public class WeaponSystem : MonoBehaviour
     private void FireUpdate()
     {
         // Fire
-        bool canFire = bulletsInMag > 0 && firerateTimer <= 0;
+        bool canFire = firerateTimer <= 0;
         bool autoFire = m_Input.KeyFire1();
         bool semiFire = m_Input.KeyFireTap1();
 
@@ -120,60 +125,74 @@ public class WeaponSystem : MonoBehaviour
 
     private void Fire()
     {
-        float crosshairNormalized = Mathf.InverseLerp(m_Crosshair.startSize, m_Crosshair.maxSize, m_Crosshair.crosshairArea.sizeDelta.x);
-
-        Vector3 forward = new Vector3(
-          m_Camera.transform.forward.x + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
-          m_Camera.transform.forward.y + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
-          m_Camera.transform.forward.z
-        );
-
-        RaycastHit[] hits = Physics.RaycastAll(m_Camera.transform.position, forward, WeaponSO.maxRange, WeaponSO.layerTarget);
-        int maxTargets = hits.Length;
-
-        if (maxTargets > WeaponSO.maxPenetration)
+        if (bulletsInMag < 1)
         {
-            maxTargets = WeaponSO.maxPenetration;
+            m_AudioSource.PlayOneShot(WeaponSO.emptySound);
+            firerateTimer = !isAiming ? WeaponSO.firerate : WeaponSO.firerate * WeaponSO.aimFirerateMultiplier;
         }
-
-        for (int i = 0; i < maxTargets; i++)
+        else
         {
-            RaycastHit target = hits[i];
+            float crosshairNormalized = Mathf.InverseLerp(m_Crosshair.startSize, m_Crosshair.maxSize, m_Crosshair.crosshairArea.sizeDelta.x);
 
-            if (target.collider != null)
+            Vector3 forward = new Vector3(
+              m_Camera.transform.forward.x + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
+              m_Camera.transform.forward.y + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
+              m_Camera.transform.forward.z
+            );
+
+            RaycastHit[] hits = Physics.RaycastAll(m_Camera.transform.position, forward, WeaponSO.maxRange, WeaponSO.layerTarget);
+            int maxTargets = hits.Length;
+
+            if (maxTargets > WeaponSO.maxPenetration)
             {
-                // Hit mark
-                GameObject hitMark = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                hitMark.transform.position = hits[i].point;
-                hitMark.transform.localScale = Vector3.one * 0.1f;
-                Destroy(hitMark.GetComponent<Collider>());
-                Destroy(hitMark, 2f);
+                maxTargets = WeaponSO.maxPenetration;
+            }
 
-                // Add force
-                if (target.rigidbody != null)
+            for (int i = 0; i < maxTargets; i++)
+            {
+                RaycastHit target = hits[i];
+
+                if (target.collider != null)
                 {
-                    target.rigidbody.AddForceAtPosition(m_Camera.transform.forward * Random.Range(WeaponSO.minForce, WeaponSO.maxForce) * Time.deltaTime, hits[i].point, ForceMode.Impulse);
+                    // Hit mark
+                    GameObject hitMark = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    hitMark.transform.position = hits[i].point;
+                    hitMark.transform.localScale = Vector3.one * 0.1f;
+                    Destroy(hitMark.GetComponent<Collider>());
+                    Destroy(hitMark, 2f);
+
+                    // Add force
+                    if (target.rigidbody != null)
+                    {
+                        target.rigidbody.AddForceAtPosition(m_Camera.transform.forward * Random.Range(WeaponSO.minForce, WeaponSO.maxForce) * Time.deltaTime, hits[i].point, ForceMode.Impulse);
+                    }
+
+                    // Damage
+                    IDamageable<float> damageable = target.collider.GetComponent<IDamageable<float>>();
+
+                    if (damageable != null)
+                    {
+                        damageable.TakeDamage(Random.Range(WeaponSO.minDamage, WeaponSO.maxDamage));
+                    }
                 }
-
-                // Damage
-                IDamageable<float> damageable = target.collider.GetComponent<IDamageable<float>>();
-
-                if (damageable != null)
+                else
                 {
-                    damageable.TakeDamage(Random.Range(WeaponSO.minDamage, WeaponSO.maxDamage));
+                    break;
                 }
             }
-            else
-            {
-                break;
-            }
+
+            // Extras
+            m_Crosshair.AddForce(WeaponSO.crosshairForce);
+            m_Recoil.AddForce();
+
+            // Sounds
+            int randomShoot = Random.Range(0, WeaponSO.fireSounds.Length);
+            m_AudioSource.PlayOneShot(WeaponSO.fireSounds[randomShoot]);
+
+            // Shoot reset
+            bulletsInMag--;
+            firerateTimer = !isAiming ? WeaponSO.firerate : WeaponSO.firerate * WeaponSO.aimFirerateMultiplier;
         }
-
-        m_Crosshair.AddForce(WeaponSO.crosshairForce);
-        m_Recoil.AddForce();
-
-        bulletsInMag--;
-        firerateTimer = !isAiming ? WeaponSO.firerate : WeaponSO.firerate * WeaponSO.aimFirerateMultiplier;
     }
 
     private void OnDrawGizmos()

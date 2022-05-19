@@ -27,4 +27,8 @@ public class WeaponSystem_SO : ScriptableObject
     [Space]
     public float minForce = 10f;
     public float maxForce = 30f;
+
+    [Header("Sound:")]
+    public AudioClip[] fireSounds;
+    public AudioClip emptySound;
 }

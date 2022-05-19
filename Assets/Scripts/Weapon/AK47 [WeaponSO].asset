@@ -17,6 +17,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 9
   firerate: 0.1
+  aimFirerateMultiplier: 2
   crosshairForce: 30
   maxRange: 500
   maxPenetration: 3
@@ -27,3 +28,9 @@ MonoBehaviour:
   maxDamage: 30
   minForce: 30
   maxForce: 60
+  fireSounds:
+  - {fileID: 8300000, guid: 3d6ee6e0515410c4c838911546c78c4a, type: 3}
+  - {fileID: 8300000, guid: 40a9276065d69f04ebe73021676f7fc6, type: 3}
+  - {fileID: 8300000, guid: 7833cce12c063c545abdb01ac6003730, type: 3}
+  - {fileID: 8300000, guid: d81bebac9cee217409b15b76e7011fc6, type: 3}
+  emptySound: {fileID: 8300000, guid: 423187235e69e424f9154058abf56d2a, type: 3}

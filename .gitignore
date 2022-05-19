@@ -72,5 +72,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 Assets/!Assets/*
 Assets/!Models/*
+Assets/!Sounds/*
 Assets/\!assets.meta
 Assets/\!models.meta

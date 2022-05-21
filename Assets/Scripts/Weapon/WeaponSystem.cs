@@ -10,6 +10,10 @@ public class WeaponSystem : MonoBehaviour
     [SerializeField] private int bulletsInBag = 30;
     [SerializeField] private int maxBulletsPerMag = 30;
 
+    [Header("MuzzleFlash:")]
+    [SerializeField] private Transform muzzlePosition;
+    [SerializeField] private GameObject[] muzzlePrefabs;
+
     private float firerateTimer = 0;
     private Vector3 startPosition;
 
@@ -204,6 +208,12 @@ public class WeaponSystem : MonoBehaviour
 
             // Animator
             m_Animator.Play("Fire", 0);
+
+            // MuzzleFlash
+            int muzzleIndex = Random.Range(0, muzzlePrefabs.Length);
+            GameObject muzzle = Instantiate(muzzlePrefabs[muzzleIndex], muzzlePosition.position, muzzlePosition.rotation);
+            muzzle.transform.parent = muzzlePosition;
+            Destroy(muzzle, 0.05f);
 
             // Shoot reset
             bulletsInMag--;

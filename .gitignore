@@ -73,5 +73,7 @@ crashlytics-build.properties
 Assets/!Assets/*
 Assets/!Models/*
 Assets/!Sounds/*
+Assets/Textures/*
+Assets/Prefabs/*
 Assets/\!assets.meta
 Assets/\!models.meta

@@ -23,4 +23,4 @@ MonoBehaviour:
   minForce: 100
   maxForce: 200
   attackSounds:
-  - {fileID: 8300000, guid: 577cb100552dc7044853df3840905615, type: 3}
+  - {fileID: 8300000, guid: 13182107f288fdc47a11f9216c8f062b, type: 3}

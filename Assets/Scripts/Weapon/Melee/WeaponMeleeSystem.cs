@@ -33,14 +33,16 @@ public class WeaponMeleeSystem : MonoBehaviour
 
         if (keyAttack)
         {
-            Attack();
+            AttackInit();
         }
     }
 
-    private void Attack()
+    private void AttackInit()
     {
-        int attackAnimation = Random.Range(1, MeleeSO.maxAttackAnimations + 1);
-        m_Animator.Play("Attack" + (attackAnimation - 1), 0);
+        int attackAnimation = Random.Range(1, MeleeSO.maxAttackAnimations + 1) - 1;
+        string animationName = "Attack" + attackAnimation;
+
+        m_Animator.Play(animationName, 0, 0f);
         isAttacking = true;
     }
 
@@ -79,6 +81,9 @@ public class WeaponMeleeSystem : MonoBehaviour
         // Sound
         int attackSound = Random.Range(0, MeleeSO.attackSounds.Length);
         PlaySound(MeleeSO.attackSounds[attackSound]);
+
+        // Extras
+        m_Crosshair.AddForce(m_Crosshair.maxSize);
     }
 
     public void AttackComplete()

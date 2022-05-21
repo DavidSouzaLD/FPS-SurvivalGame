@@ -3,6 +3,14 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class WeaponSystem : MonoBehaviour
 {
+    [System.Serializable]
+    public class HitImpact
+    {
+        public string name;
+        public GameObject prefab;
+        public string tag = "Untagged";
+    }
+
     [SerializeField] public WeaponSystem_SO WeaponSO;
 
     [Header("Bullet:")]
@@ -13,6 +21,11 @@ public class WeaponSystem : MonoBehaviour
     [Header("MuzzleFlash:")]
     [SerializeField] private Transform muzzlePosition;
     [SerializeField] private GameObject[] muzzlePrefabs;
+
+    [Header("Hits Impact:")]
+    [SerializeField] private HitImpact[] hitImpacts;
+    [SerializeField] private float hitScale = 0.1f;
+    [SerializeField] private float hitDestroyTime = 2f;
 
     private float firerateTimer = 0;
     private Vector3 startPosition;
@@ -172,11 +185,17 @@ public class WeaponSystem : MonoBehaviour
                 if (target.collider != null)
                 {
                     // Hit mark
-                    GameObject hitMark = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    hitMark.transform.position = hits[i].point;
-                    hitMark.transform.localScale = Vector3.one * 0.1f;
-                    Destroy(hitMark.GetComponent<Collider>());
-                    Destroy(hitMark, 2f);
+                    for (int h = 0; h < hitImpacts.Length; h++)
+                    {
+                        GameObject hitPrefab = FindHitWithTag(hits[i].transform.tag);
+
+                        if (hitPrefab != null)
+                        {
+                            GameObject hitMark = Instantiate(hitPrefab, hits[i].point, Quaternion.LookRotation(hits[i].normal));
+                            hitMark.transform.localScale = Vector3.one * hitScale;
+                            Destroy(hitMark, hitDestroyTime);
+                        }
+                    }
 
                     // Add force
                     if (target.rigidbody != null)
@@ -219,6 +238,19 @@ public class WeaponSystem : MonoBehaviour
             bulletsInMag--;
             firerateTimer = !isAiming ? WeaponSO.firerate : WeaponSO.firerate * WeaponSO.aimFirerateMultiplier;
         }
+    }
+
+    public GameObject FindHitWithTag(string _tag)
+    {
+        for (int i = 0; i < hitImpacts.Length; i++)
+        {
+            if (hitImpacts[i].tag.ToLower() == _tag.ToLower())
+            {
+                return hitImpacts[i].prefab;
+            }
+        }
+
+        return null;
     }
 
     private void OnDrawGizmos()

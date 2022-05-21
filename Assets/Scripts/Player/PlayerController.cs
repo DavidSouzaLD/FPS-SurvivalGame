@@ -8,14 +8,8 @@ public class PlayerController : MonoBehaviour
     [Header("Movement:")]
     [SerializeField] private float moveSpeed = 4;
     [SerializeField] private float runSpeed = 7;
-    [SerializeField] private float crouchMoveSpeed = 7;
     [SerializeField] private float jumpForce = 4;
     [SerializeField] private float gravityMultiplier = 0.05f;
-
-    [Header("Ground Check:")]
-    [SerializeField] private float radiusCheck = 0.2f;
-    [SerializeField] private float heightCheck = 2f;
-    [SerializeField] private LayerMask layersCheck;
 
     [Header("Affect Weapon:")]
     [SerializeField] private float crosshairForceInWalk = 35f;

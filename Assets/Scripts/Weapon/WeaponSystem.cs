@@ -191,7 +191,7 @@ public class WeaponSystem : MonoBehaviour
 
                         if (hitPrefab != null)
                         {
-                            GameObject hitMark = Instantiate(hitPrefab, hits[i].point, Quaternion.LookRotation(hits[i].normal));
+                            GameObject hitMark = Instantiate(hitPrefab, hits[i].point * 1.0001f, Quaternion.LookRotation(hits[i].normal));
                             hitMark.transform.localScale = Vector3.one * hitScale;
                             Destroy(hitMark, hitDestroyTime);
                         }

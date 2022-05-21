@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
-public class WeaponReload : MonoBehaviour
+public class WeaponSystemEvents : MonoBehaviour
 {
     private WeaponSystem m_Weapon;
     private Animator m_Animator;

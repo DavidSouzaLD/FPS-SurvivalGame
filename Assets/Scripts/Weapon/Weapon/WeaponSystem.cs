@@ -50,7 +50,6 @@ public class WeaponSystem : MonoBehaviour
         m_Camera = Camera.main;
         m_AudioSource = GetComponent<AudioSource>();
         m_Animator = GetComponentInChildren<Animator>();
-
         m_Crosshair = GameObject.FindObjectOfType<WeaponCrosshair>();
         m_Sway = GameObject.FindObjectOfType<WeaponSway>();
         m_Recoil = GameObject.FindObjectOfType<WeaponRecoil>();

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d38a0c0dc7d28845beb46b25eafb8cb, type: 3}
+  m_Name: AXE_Data
+  m_EditorClassIdentifier: 
+  layerTarget:
+    serializedVersion: 2
+    m_Bits: 9
+  maxRange: 1
+  areaDamage: 0.2
+  maxAttackAnimations: 3
+  minDamage: 15
+  maxDamage: 30
+  minForce: 100
+  maxForce: 200
+  attackSounds:
+  - {fileID: 8300000, guid: 577cb100552dc7044853df3840905615, type: 3}

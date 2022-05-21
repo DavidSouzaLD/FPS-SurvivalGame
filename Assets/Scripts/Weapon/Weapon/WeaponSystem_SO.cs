@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New WeaponSO", menuName = "ProjectSouza/WeaponSO")]
+[CreateAssetMenu(fileName = "New WeaponSO", menuName = "ProjectSouza/Weapons/WeaponSO")]
 public class WeaponSystem_SO : ScriptableObject
 {
     public enum FireType { Semi, Automatic }

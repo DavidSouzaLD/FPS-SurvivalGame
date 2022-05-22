@@ -14,7 +14,7 @@ public class Input : MonoBehaviour
     public bool KeyFire2() => m_InputMap.Player.Fire2.ReadValue<float>() != 0;
     public bool KeyFireTap1() => m_InputMap.Player.FireTap1.ReadValue<float>() != 0;
     public bool KeyFireTap2() => m_InputMap.Player.FireTap2.ReadValue<float>() != 0;
-    public bool KeyRun() => m_InputMap.Player.Run.ReadValue<float>() != 0;
+    public bool KeyRun() => m_InputMap.Player.Run.ReadValue<float>() != 0 && KeyAxis().y > 0;
     public bool KeyJump() => m_InputMap.Player.Jump.ReadValue<float>() != 0;
     public bool KeyCrouch() => m_InputMap.Player.Crouch.ReadValue<float>() != 0;
     public bool KeyReload() => m_InputMap.Player.Reload.ReadValue<float>() != 0;

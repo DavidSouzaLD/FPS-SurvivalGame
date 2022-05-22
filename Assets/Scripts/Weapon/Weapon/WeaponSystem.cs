@@ -32,12 +32,13 @@ public class WeaponSystem : MonoBehaviour
 
     private bool isReloading;
     private bool isAiming;
+    private bool isRunning;
 
     private Input m_Input;
-    private Camera m_Camera;
     private AudioSource m_AudioSource;
     private Animator m_Animator;
 
+    private PlayerCamera m_PlayerCamera;
     private WeaponCrosshair m_Crosshair;
     private WeaponSway m_Sway;
     private WeaponRecoil m_Recoil;
@@ -47,29 +48,27 @@ public class WeaponSystem : MonoBehaviour
     private void Start()
     {
         m_Input = GameObject.FindObjectOfType<Input>();
-        m_Camera = Camera.main;
         m_AudioSource = GetComponent<AudioSource>();
         m_Animator = GetComponentInChildren<Animator>();
         m_Crosshair = GameObject.FindObjectOfType<WeaponCrosshair>();
         m_Sway = GameObject.FindObjectOfType<WeaponSway>();
         m_Recoil = GameObject.FindObjectOfType<WeaponRecoil>();
+        m_PlayerCamera = GameObject.FindObjectOfType<PlayerCamera>();
 
         startPosition = transform.localPosition;
     }
 
     private void Update()
     {
-        FireUpdate();
-        ReloadUpdate();
-        AimUpdate();
-    }
-
-    private void FireUpdate()
-    {
         // Fire
-        bool canFire = firerateTimer <= 0 && !isReloading;
+        bool canFire = firerateTimer <= 0 && !isReloading && !isRunning;
         bool autoFire = m_Input.KeyFire1();
         bool semiFire = m_Input.KeyFireTap1();
+
+        if (firerateTimer > 0)
+        {
+            firerateTimer -= Time.deltaTime;
+        }
 
         if (canFire)
         {
@@ -91,49 +90,20 @@ public class WeaponSystem : MonoBehaviour
             }
         }
 
-        // Firerate
-        if (firerateTimer > 0)
-        {
-            firerateTimer -= Time.deltaTime;
-        }
-    }
-
-    private void ReloadUpdate()
-    {
-        bool canReload = !isReloading && bulletsInMag < maxBulletsPerMag && bulletsInBag > 0;
+        // Reload
+        bool canReload = !isReloading && bulletsInMag < maxBulletsPerMag && bulletsInBag > 0 && !isRunning;
         bool reloadKey = m_Input.KeyReload();
 
         if (canReload && reloadKey)
         {
             ReloadInit();
         }
-    }
 
-    public void ReloadInit()
-    {
-        isReloading = true;
-        m_Animator.Play("Reload", 0);
-    }
-
-    public void ReloadComplete()
-    {
-        for (int i = 0; i < maxBulletsPerMag; i++)
-        {
-            if (bulletsInBag > 0 && bulletsInMag < maxBulletsPerMag)
-            {
-                bulletsInMag++;
-                bulletsInBag--;
-            }
-        }
-
-        isReloading = false;
-    }
-
-    private void AimUpdate()
-    {
+        // Aim 
+        bool canAim = !isRunning;
         bool aimKey = m_Input.KeyFire2();
 
-        if (aimKey)
+        if (canAim && aimKey)
         {
             transform.localPosition = Vector3.Lerp(transform.localPosition, WeaponSO.aimPosition, WeaponSO.aimSpeed * Time.deltaTime);
             m_Sway.accuracy = 0.1f;
@@ -150,6 +120,12 @@ public class WeaponSystem : MonoBehaviour
 
             isAiming = false;
         }
+
+        // Running
+        bool canRun = !isReloading && !isAiming;
+        bool runKey = m_Input.KeyRun();
+        isRunning = runKey;
+        m_Animator.SetBool("Run", runKey);
     }
 
     private void Fire()
@@ -164,12 +140,12 @@ public class WeaponSystem : MonoBehaviour
             float crosshairNormalized = Mathf.InverseLerp(m_Crosshair.startSize, m_Crosshair.maxSize, m_Crosshair.crosshairArea.sizeDelta.x);
 
             Vector3 forward = new Vector3(
-              m_Camera.transform.forward.x + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
-              m_Camera.transform.forward.y + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
-              m_Camera.transform.forward.z
+              m_PlayerCamera.GetCamera().transform.forward.x + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
+              m_PlayerCamera.GetCamera().transform.forward.y + Random.Range(-WeaponSO.recoilSpread * crosshairNormalized, WeaponSO.recoilSpread * crosshairNormalized),
+              m_PlayerCamera.GetCamera().transform.forward.z
             );
 
-            RaycastHit[] hits = Physics.RaycastAll(m_Camera.transform.position, forward, WeaponSO.maxRange, WeaponSO.layerTarget);
+            RaycastHit[] hits = Physics.RaycastAll(m_PlayerCamera.GetCamera().transform.position, forward, WeaponSO.maxRange, WeaponSO.layerTarget);
             int maxTargets = hits.Length;
 
             if (maxTargets > WeaponSO.maxPenetration)
@@ -191,7 +167,17 @@ public class WeaponSystem : MonoBehaviour
                         if (hitPrefab != null)
                         {
                             GameObject hitMark = Instantiate(hitPrefab, hits[i].point * 1.0001f, Quaternion.LookRotation(hits[i].normal));
+                            hitMark.transform.Translate(-hitMark.transform.forward * 0.001f);
                             hitMark.transform.localScale = Vector3.one * hitScale;
+                            hitMark.transform.SetParent(hits[i].transform, true);
+                            Destroy(hitMark, hitDestroyTime);
+                        }
+                        else if (hitImpacts[0] != null)
+                        {
+                            GameObject hitMark = Instantiate(hitImpacts[0].prefab, hits[i].point, Quaternion.LookRotation(hits[i].normal));
+                            hitMark.transform.Translate(-hitMark.transform.forward * 0.001f);
+                            hitMark.transform.localScale = Vector3.one * hitScale;
+                            hitMark.transform.SetParent(hits[i].transform, true);
                             Destroy(hitMark, hitDestroyTime);
                         }
                     }
@@ -199,7 +185,7 @@ public class WeaponSystem : MonoBehaviour
                     // Add force
                     if (target.rigidbody != null)
                     {
-                        target.rigidbody.AddForceAtPosition(m_Camera.transform.forward * Random.Range(WeaponSO.minForce, WeaponSO.maxForce) * Time.deltaTime, hits[i].point, ForceMode.Impulse);
+                        target.rigidbody.AddForceAtPosition(m_PlayerCamera.GetCamera().transform.forward * Random.Range(WeaponSO.minForce, WeaponSO.maxForce) * Time.deltaTime, hits[i].point, ForceMode.Impulse);
                     }
 
                     // Damage
@@ -239,6 +225,26 @@ public class WeaponSystem : MonoBehaviour
         }
     }
 
+    public void ReloadInit()
+    {
+        isReloading = true;
+        m_Animator.Play("Reload", 0);
+    }
+
+    public void ReloadComplete()
+    {
+        for (int i = 0; i < maxBulletsPerMag; i++)
+        {
+            if (bulletsInBag > 0 && bulletsInMag < maxBulletsPerMag)
+            {
+                bulletsInMag++;
+                bulletsInBag--;
+            }
+        }
+
+        isReloading = false;
+    }
+
     public GameObject FindHitWithTag(string _tag)
     {
         for (int i = 0; i < hitImpacts.Length; i++)
@@ -254,14 +260,17 @@ public class WeaponSystem : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (m_Camera == null)
+        if (m_PlayerCamera == null)
         {
-            m_Camera = Camera.main;
+            m_PlayerCamera = GameObject.FindObjectOfType<PlayerCamera>();
         }
-        else if (WeaponSO != null)
+        else
         {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawRay(m_Camera.transform.position, m_Camera.transform.forward * WeaponSO.maxRange);
+            if (WeaponSO != null && m_PlayerCamera.GetCamera() != null)
+            {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawRay(m_PlayerCamera.GetCamera().transform.position, m_PlayerCamera.GetCamera().transform.forward * WeaponSO.maxRange);
+            }
         }
     }
 }
